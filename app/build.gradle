@@ -1,22 +1,4 @@
 plugins {
-    id 'com.android.application'
-    id 'com.google.gms.google-services'
-}
-
-android {
-    namespace 'tj.gametj.app'
-    compileSdk 35
-
-    defaultConfig {
-        applicationId 'tj.gametj.app'
-        minSdk 23
-        targetSdk 35
-        versionCode 1
-        versionName '1.0'
-    }
-}
-
-dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.5.1')
-    implementation 'com.google.firebase:firebase-database'
+    id 'com.android.application' version '8.5.2' apply false
+    id 'com.google.gms.google-services' version '4.4.2' apply false
 }
