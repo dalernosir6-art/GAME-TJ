@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.*;
 
 public class MainActivity extends Activity {
@@ -26,25 +25,18 @@ public class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
 
         TextView welcome = new TextView(this);
-        welcome.setText("Хуш омадед ба бозори аккаунтҳо");
-        welcome.setTextSize(24);
+        welcome.setText("Хуш омадед ба бозори акаунтҳо");
+        welcome.setTextSize(25);
         welcome.setTextColor(Color.WHITE);
         welcome.setGravity(Gravity.CENTER);
         welcome.setPadding(0, 20, 0, 30);
 
         Button accounts = new Button(this);
-        accounts.setText("АККАУНТҲО");
-        accounts.setTextSize(18);
+        accounts.setText("АКАУНТҲО");
+        accounts.setTextSize(20);
 
-        accounts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(
-                    MainActivity.this,
-                    "Рӯйхати аккаунтҳо кушода мешавад",
-                    Toast.LENGTH_SHORT
-                ).show();
-            }
+        accounts.setOnClickListener(v -> {
+            Toast.makeText(this, "Бахши акаунтҳо кушода шуд", Toast.LENGTH_SHORT).show();
         });
 
         root.addView(title);
