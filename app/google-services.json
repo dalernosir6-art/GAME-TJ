@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "586974488795",
+    "project_id": "game-tj",
+    "storage_bucket": "game-tj.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586974488795:android:7814913cee8f037033c4fe",
+        "android_client_info": {
+          "package_name": "tj.gametj.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzLQwO9zu5Chvoe0vvKCUY92dS-mF3bDQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
