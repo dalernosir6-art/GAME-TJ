@@ -5,22 +5,19 @@ import android.os.Bundle;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 public class MainActivity extends Activity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
-        root.setPadding(30, 30, 30, 30);
-        root.setBackgroundColor(Color.rgb(0, 130, 90));
+        root.setPadding(25, 40, 25, 40);
+        root.setBackgroundColor(Color.rgb(0, 128, 96));
 
         TextView title = new TextView(this);
         title.setText("🎮 GAME TJ");
@@ -28,29 +25,31 @@ public class MainActivity extends Activity {
         title.setTextColor(Color.WHITE);
         title.setGravity(Gravity.CENTER);
 
-        TextView subtitle = new TextView(this);
-        subtitle.setText("Бозори масолеҳи сохтмонӣ");
-        subtitle.setTextSize(20);
-        subtitle.setTextColor(Color.WHITE);
-        subtitle.setGravity(Gravity.CENTER);
+        TextView welcome = new TextView(this);
+        welcome.setText("Хуш омадед ба бозори аккаунтҳо");
+        welcome.setTextSize(24);
+        welcome.setTextColor(Color.WHITE);
+        welcome.setGravity(Gravity.CENTER);
+        welcome.setPadding(0, 20, 0, 30);
 
-        Button button = new Button(this);
-        button.setText("Масолеҳи сохтмонӣ");
+        Button accounts = new Button(this);
+        accounts.setText("АККАУНТҲО");
+        accounts.setTextSize(18);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        accounts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(
                     MainActivity.this,
-                    "Хуш омадед ба GAME TJ!",
+                    "Рӯйхати аккаунтҳо кушода мешавад",
                     Toast.LENGTH_SHORT
                 ).show();
             }
         });
 
         root.addView(title);
-        root.addView(subtitle);
-        root.addView(button);
+        root.addView(welcome);
+        root.addView(accounts);
 
         setContentView(root);
     }
