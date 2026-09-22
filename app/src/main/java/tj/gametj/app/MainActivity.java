@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
     }
 
     void showHome() {
+
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
@@ -41,12 +42,7 @@ public class MainActivity extends Activity {
         accounts.setText("АКАУНТҲО");
         accounts.setTextSize(20);
 
-        accounts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAccounts();
-            }
-        });
+        accounts.setOnClickListener(v -> showAccounts());
 
         root.addView(title);
         root.addView(welcome);
@@ -85,12 +81,7 @@ public class MainActivity extends Activity {
         Button back = new Button(this);
         back.setText("← БАРГАШТАН");
         back.setTextSize(18);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHome();
-            }
-        });
+        back.setOnClickListener(v -> showHome());
 
         list.addView(back);
 
