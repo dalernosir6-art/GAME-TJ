@@ -2,23 +2,23 @@ package tj.gametj.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
+import android.view.ViewGroup;
 import android.widget.*;
-
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends Activity {
 
-    LinearLayout root;
-    SharedPreferences prefs;
+    LinearLayout main;
+    LinearLayout content;
+    EditText search;
+    TextView pageTitle;
 
     ArrayList<String> names = new ArrayList<>();
     ArrayList<String> games = new ArrayList<>();
@@ -27,162 +27,25 @@ public class MainActivity extends Activity {
     ArrayList<String> phones = new ArrayList<>();
     ArrayList<String> descriptions = new ArrayList<>();
 
+    Set<Integer> favorites = new HashSet<>();
+
+    int BLUE = Color.rgb(7, 20, 48);
+    int CARD = Color.rgb(13, 32, 68);
+    int CARD2 = Color.rgb(18, 42, 82);
+    int WHITE = Color.WHITE;
+    int MUTED = Color.rgb(175, 190, 215);
+    int ACCENT = Color.rgb(65, 150, 255);
+    int GREEN = Color.rgb(55, 205, 125);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Ранги Status Bar
-        getWindow().setStatusBarColor(Color.BLACK);
+        getWindow().setStatusBarColor(BLUE);
         getWindow().setNavigationBarColor(Color.BLACK);
 
-        prefs = getSharedPreferences("GAME_TJ_DATA", MODE_PRIVATE);
-
-        loadAccounts();
-
-        // Аввал Loading Screen
-        showLoading();
-    }
-
-    // =========================================================
-    // LOADING SCREEN
-    // =========================================================
-
-    void showLoading() {
-
-        LinearLayout loadingLayout = new LinearLayout(this);
-        loadingLayout.setOrientation(LinearLayout.VERTICAL);
-        loadingLayout.setGravity(Gravity.CENTER);
-        loadingLayout.setBackgroundColor(Color.BLACK);
-
-        // Логотип
-        ImageView logo = new ImageView(this);
-
-        try {
-            logo.setImageResource(R.mipmap.ic_launcher);
-        } catch (Exception e) {
-            logo.setImageResource(android.R.drawable.ic_menu_gallery);
-        }
-
-        int logoSize = dp(180);
-
-        LinearLayout.LayoutParams logoParams =
-                new LinearLayout.LayoutParams(logoSize, logoSize);
-
-        logoParams.gravity = Gravity.CENTER;
-        logo.setLayoutParams(logoParams);
-        logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-
-        // =====================================================
-        // АНИМАТСИЯИ ЛОГО
-        // Равшан мешавад -> хомӯштар -> боз равшан
-        // Ҳамзамон каме калон/хурд мешавад
-        // =====================================================
-
-        AlphaAnimation fade =
-                new AlphaAnimation(0.45f, 1.0f);
-
-        fade.setDuration(850);
-        fade.setRepeatMode(Animation.REVERSE);
-        fade.setRepeatCount(Animation.INFINITE);
-
-        ScaleAnimation scale =
-                new ScaleAnimation(
-                        0.92f,
-                        1.05f,
-                        0.92f,
-                        1.05f,
-                        Animation.RELATIVE_TO_SELF,
-                        0.5f,
-                        Animation.RELATIVE_TO_SELF,
-                        0.5f
-                );
-
-        scale.setDuration(850);
-        scale.setRepeatMode(Animation.REVERSE);
-        scale.setRepeatCount(Animation.INFINITE);
-
-        AnimationSet animationSet = new AnimationSet(true);
-        animationSet.addAnimation(fade);
-        animationSet.addAnimation(scale);
-
-        logo.startAnimation(animationSet);
-
-        // Номи барнома
-        TextView title = new TextView(this);
-        title.setText("GAME TJ");
-        title.setTextSize(30);
-        title.setTextColor(Color.WHITE);
-        title.setGravity(Gravity.CENTER);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-
-        LinearLayout.LayoutParams titleParams =
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-
-        titleParams.topMargin = dp(18);
-        title.setLayoutParams(titleParams);
-
-        // Матни Loading
-        TextView loadingText = new TextView(this);
-        loadingText.setText("Бор карда мешавад...");
-        loadingText.setTextSize(16);
-        loadingText.setTextColor(Color.LTGRAY);
-        loadingText.setGravity(Gravity.CENTER);
-
-        LinearLayout.LayoutParams textParams =
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-
-        textParams.topMargin = dp(8);
-        loadingText.setLayoutParams(textParams);
-
-        // Нуқтаҳои loading
-        TextView dots = new TextView(this);
-        dots.setText("●  ●  ●");
-        dots.setTextSize(14);
-        dots.setTextColor(Color.WHITE);
-        dots.setGravity(Gravity.CENTER);
-
-        LinearLayout.LayoutParams dotsParams =
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-
-        dotsParams.topMargin = dp(15);
-        dots.setLayoutParams(dotsParams);
-
-        AlphaAnimation dotsAnimation =
-                new AlphaAnimation(0.25f, 1.0f);
-
-        dotsAnimation.setDuration(700);
-        dotsAnimation.setRepeatMode(Animation.REVERSE);
-        dotsAnimation.setRepeatCount(Animation.INFINITE);
-
-        dots.startAnimation(dotsAnimation);
-
-        loadingLayout.addView(logo);
-        loadingLayout.addView(title);
-        loadingLayout.addView(loadingText);
-        loadingLayout.addView(dots);
-
-        setContentView(loadingLayout);
-
-        // Баъд аз Loading ба Home мегузарад
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                logo.clearAnimation();
-                dots.clearAnimation();
-
-                showHome();
-            }
-        }, 3000);
+        loadDemoAccounts();
+        showHome();
     }
 
     // =========================================================
@@ -191,165 +54,638 @@ public class MainActivity extends Activity {
 
     void showHome() {
 
-        root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setGravity(Gravity.CENTER);
-        root.setPadding(25, 40, 25, 40);
-        root.setBackgroundColor(Color.rgb(0, 128, 96));
+        createBase("GAME TJ");
 
-        TextView title = new TextView(this);
-        title.setText("🎮 GAME TJ");
-        title.setTextSize(32);
-        title.setTextColor(Color.WHITE);
-        title.setGravity(Gravity.CENTER);
+        TextView welcome = text(
+                "Хуш омадед ба бозори аккаунтҳо",
+                24,
+                WHITE,
+                true
+        );
 
-        TextView welcome = new TextView(this);
-        welcome.setText("Хуш омадед ба бозори аккаунтҳо");
-        welcome.setTextSize(23);
-        welcome.setTextColor(Color.WHITE);
-        welcome.setGravity(Gravity.CENTER);
-        welcome.setPadding(0, 20, 0, 30);
+        content.addView(welcome);
 
-        Button accounts = new Button(this);
-        accounts.setText("🎮 АКАУНТҲО");
-        accounts.setTextSize(20);
-        accounts.setOnClickListener(v -> showAccounts());
+        search = new EditText(this);
+        search.setHint("🔍  Ҷустуҷӯи аккаунт...");
+        search.setHintTextColor(MUTED);
+        search.setTextColor(WHITE);
+        search.setTextSize(16);
+        search.setSingleLine(true);
+        search.setPadding(dp(18), 0, dp(18), 0);
 
-        Button admin = new Button(this);
-        admin.setText("🔐 АДМИН");
-        admin.setTextSize(18);
-        admin.setOnClickListener(v -> showAdminLogin());
+        GradientDrawable searchBg = bg(CARD2, 18);
+        search.setBackground(searchBg);
 
-        root.addView(title);
-        root.addView(welcome);
-        root.addView(accounts);
-        root.addView(admin);
+        LinearLayout.LayoutParams searchParams =
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(55)
+                );
 
-        setContentView(root);
+        searchParams.topMargin = dp(18);
+        content.addView(search, searchParams);
+
+        search.setOnEditorActionListener((v, actionId, event) -> {
+            showSearch(search.getText().toString());
+            return true;
+        });
+
+        TextView catTitle = text(
+                "Категорияҳо",
+                20,
+                WHITE,
+                true
+        );
+
+        LinearLayout.LayoutParams ct =
+                new LinearLayout.LayoutParams(-1, -2);
+        ct.topMargin = dp(24);
+        content.addView(catTitle, ct);
+
+        LinearLayout categories = new LinearLayout(this);
+        categories.setOrientation(LinearLayout.HORIZONTAL);
+
+        addCategory(categories, "🎮 Ҳама", "Ҳама");
+        addCategory(categories, "🔥 Free Fire", "Free Fire");
+        addCategory(categories, "🔫 PUBG", "PUBG");
+        addCategory(categories, "⚔️ Дигар", "Дигар");
+
+        content.addView(categories);
+
+        TextView newTitle = text(
+                "🔥 Эълонҳои нав",
+                20,
+                WHITE,
+                true
+        );
+
+        LinearLayout.LayoutParams nt =
+                new LinearLayout.LayoutParams(-1, -2);
+        nt.topMargin = dp(25);
+
+        content.addView(newTitle, nt);
+
+        showCards(content, names, games, levels, prices, phones, descriptions);
+
+        addBottomNavigation(0);
     }
 
     // =========================================================
-    // ADMIN LOGIN
+    // BASE LAYOUT
     // =========================================================
 
-    void showAdminLogin() {
+    void createBase(String title) {
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(30, 50, 30, 30);
-        layout.setGravity(Gravity.CENTER);
+        main = new LinearLayout(this);
+        main.setOrientation(LinearLayout.VERTICAL);
+        main.setBackgroundColor(BLUE);
 
-        TextView title = new TextView(this);
-        title.setText("🔐 Панели админ");
-        title.setTextSize(28);
-        title.setGravity(Gravity.CENTER);
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
 
-        EditText password = new EditText(this);
-        password.setHint("PIN-код");
-        password.setInputType(2);
+        content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(
+                dp(18),
+                dp(20),
+                dp(18),
+                dp(100)
+        );
 
-        Button login = new Button(this);
-        login.setText("ВОЙТИ");
+        scroll.addView(content);
 
-        Button back = new Button(this);
-        back.setText("← БАРГАШТАН");
+        main.addView(scroll,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        0,
+                        1
+                )
+        );
 
-        login.setOnClickListener(v -> {
+        setContentView(main);
+    }
 
-            if (password.getText().toString().equals("1234")) {
+    // =========================================================
+    // CATEGORIES
+    // =========================================================
 
-                showAdminPanel();
+    void addCategory(
+            LinearLayout row,
+            String title,
+            String filter
+    ) {
 
+        Button b = new Button(this);
+        b.setText(title);
+        b.setTextColor(WHITE);
+        b.setTextSize(13);
+        b.setAllCaps(false);
+        b.setBackground(bg(CARD2, 16));
+
+        LinearLayout.LayoutParams p =
+                new LinearLayout.LayoutParams(
+                        dp(120),
+                        dp(48)
+                );
+
+        p.rightMargin = dp(8);
+
+        row.addView(b, p);
+
+        b.setOnClickListener(v -> {
+
+            if (filter.equals("Ҳама")) {
+                showHome();
             } else {
+                showCategory(filter);
+            }
+        });
+    }
 
-                Toast.makeText(
-                        this,
-                        "PIN-код нодуруст аст",
-                        Toast.LENGTH_SHORT
-                ).show();
+    // =========================================================
+    // SEARCH
+    // =========================================================
+
+    void showSearch(String query) {
+
+        createBase("Ҷустуҷӯ");
+
+        TextView title = text(
+                "🔍 Натиҷаи ҷустуҷӯ",
+                23,
+                WHITE,
+                true
+        );
+
+        content.addView(title);
+
+        boolean found = false;
+
+        for (int i = 0; i < names.size(); i++) {
+
+            String all =
+                    (names.get(i) + " " +
+                    games.get(i) + " " +
+                    descriptions.get(i))
+                    .toLowerCase();
+
+            if (all.contains(query.toLowerCase())) {
+
+                addCard(
+                        content,
+                        i,
+                        names.get(i),
+                        games.get(i),
+                        levels.get(i),
+                        prices.get(i),
+                        phones.get(i),
+                        descriptions.get(i)
+                );
+
+                found = true;
+            }
+        }
+
+        if (!found) {
+
+            TextView empty = text(
+                    "Ягон аккаунт ёфт нашуд.",
+                    17,
+                    MUTED,
+                    false
+            );
+
+            empty.setGravity(Gravity.CENTER);
+            content.addView(empty);
+        }
+
+        addBottomNavigation(1);
+    }
+
+    // =========================================================
+    // CATEGORY
+    // =========================================================
+
+    void showCategory(String category) {
+
+        createBase(category);
+
+        TextView title = text(
+                "🎮 " + category,
+                24,
+                WHITE,
+                true
+        );
+
+        content.addView(title);
+
+        boolean found = false;
+
+        for (int i = 0; i < games.size(); i++) {
+
+            if (games.get(i)
+                    .toLowerCase()
+                    .contains(category.toLowerCase())) {
+
+                addCard(
+                        content,
+                        i,
+                        names.get(i),
+                        games.get(i),
+                        levels.get(i),
+                        prices.get(i),
+                        phones.get(i),
+                        descriptions.get(i)
+                );
+
+                found = true;
+            }
+        }
+
+        if (!found) {
+
+            TextView empty = text(
+                    "Дар ин категория ҳоло эълон нест.",
+                    17,
+                    MUTED,
+                    false
+            );
+
+            empty.setGravity(Gravity.CENTER);
+            content.addView(empty);
+        }
+
+        addBottomNavigation(0);
+    }
+
+    // =========================================================
+    // ACCOUNT CARDS
+    // =========================================================
+
+    void showCards(
+            LinearLayout list,
+            ArrayList<String> n,
+            ArrayList<String> g,
+            ArrayList<String> l,
+            ArrayList<String> p,
+            ArrayList<String> ph,
+            ArrayList<String> d
+    ) {
+
+        for (int i = 0; i < n.size(); i++) {
+
+            addCard(
+                    list,
+                    i,
+                    n.get(i),
+                    g.get(i),
+                    l.get(i),
+                    p.get(i),
+                    ph.get(i),
+                    d.get(i)
+            );
+        }
+    }
+
+    void addCard(
+            LinearLayout list,
+            int index,
+            String name,
+            String game,
+            String level,
+            String price,
+            String phone,
+            String description
+    ) {
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(
+                dp(16),
+                dp(16),
+                dp(16),
+                dp(16)
+        );
+
+        card.setBackground(bg(CARD, 18));
+
+        LinearLayout.LayoutParams cp =
+                new LinearLayout.LayoutParams(
+                        -1,
+                        -2
+                );
+
+        cp.topMargin = dp(12);
+
+        list.addView(card, cp);
+
+        LinearLayout top = new LinearLayout(this);
+        top.setOrientation(LinearLayout.HORIZONTAL);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView nameText = text(
+                "🎮 " + name,
+                19,
+                WHITE,
+                true
+        );
+
+        top.addView(
+                nameText,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
+        );
+
+        Button fav = new Button(this);
+        fav.setText(
+                favorites.contains(index)
+                        ? "♥"
+                        : "♡"
+        );
+
+        fav.setTextSize(24);
+        fav.setTextColor(WHITE);
+        fav.setBackgroundColor(Color.TRANSPARENT);
+
+        top.addView(
+                fav,
+                new LinearLayout.LayoutParams(
+                        dp(55),
+                        dp(55)
+                )
+        );
+
+        fav.setOnClickListener(v -> {
+
+            if (favorites.contains(index)) {
+                favorites.remove(index);
+                fav.setText("♡");
+            } else {
+                favorites.add(index);
+                fav.setText("♥");
             }
         });
 
-        back.setOnClickListener(v -> showHome());
+        card.addView(top);
 
-        layout.addView(title);
-        layout.addView(password);
-        layout.addView(login);
-        layout.addView(back);
+        TextView gameText = text(
+                "🕹 " + game + "     📊 Level " + level,
+                15,
+                MUTED,
+                false
+        );
 
-        setContentView(layout);
+        card.addView(gameText);
+
+        TextView desc = text(
+                description,
+                15,
+                MUTED,
+                false
+        );
+
+        LinearLayout.LayoutParams dp1 =
+                new LinearLayout.LayoutParams(-1, -2);
+
+        dp1.topMargin = dp(8);
+
+        card.addView(desc, dp1);
+
+        TextView priceText = text(
+                "💰 " + price + " сомонӣ",
+                19,
+                GREEN,
+                true
+        );
+
+        LinearLayout.LayoutParams pp =
+                new LinearLayout.LayoutParams(-1, -2);
+
+        pp.topMargin = dp(10);
+
+        card.addView(priceText, pp);
+
+        Button detail = new Button(this);
+        detail.setText("Дидани аккаунт →");
+        detail.setTextColor(WHITE);
+        detail.setAllCaps(false);
+        detail.setBackground(bg(ACCENT, 14));
+
+        LinearLayout.LayoutParams bp =
+                new LinearLayout.LayoutParams(-1, dp(48));
+
+        bp.topMargin = dp(12);
+
+        card.addView(detail, bp);
+
+        detail.setOnClickListener(
+                v -> showDetails(
+                        index,
+                        name,
+                        game,
+                        level,
+                        price,
+                        phone,
+                        description
+                )
+        );
     }
 
     // =========================================================
-    // ADMIN PANEL
+    // DETAILS
     // =========================================================
 
-    void showAdminPanel() {
+    void showDetails(
+            int index,
+            String name,
+            String game,
+            String level,
+            String price,
+            String phone,
+            String description
+    ) {
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(25, 30, 25, 30);
+        createBase("Аккаунт");
 
-        TextView title = new TextView(this);
-        title.setText("⚙️ ПАНЕЛИ АДМИН");
-        title.setTextSize(28);
-        title.setTextColor(Color.rgb(0, 128, 96));
-        title.setGravity(Gravity.CENTER);
+        TextView title = text(
+                "🎮 " + name,
+                26,
+                WHITE,
+                true
+        );
 
-        Button add = new Button(this);
-        add.setText("➕ ИЛОВА КАРДАНИ АКАУНТ");
+        content.addView(title);
 
-        Button accounts = new Button(this);
-        accounts.setText("📋 РӮЙХАТИ АКАУНТҲО");
+        TextView info = text(
+                "\n🕹 Бозӣ: " + game +
+                "\n\n📊 Level: " + level +
+                "\n\n💰 Нарх: " + price + " сомонӣ" +
+                "\n\n📝 " + description +
+                "\n\n📱 Телефон: " + phone,
+                17,
+                MUTED,
+                false
+        );
 
-        Button back = new Button(this);
-        back.setText("← БАРГАШТАН");
+        LinearLayout.LayoutParams ip =
+                new LinearLayout.LayoutParams(-1, -2);
 
-        add.setOnClickListener(v -> showAddAccount());
+        ip.topMargin = dp(20);
 
-        accounts.setOnClickListener(v -> showAccounts());
+        content.addView(info, ip);
 
-        back.setOnClickListener(v -> showHome());
+        Button favorite = new Button(this);
 
-        layout.addView(title);
-        layout.addView(add);
-        layout.addView(accounts);
-        layout.addView(back);
+        favorite.setText(
+                favorites.contains(index)
+                        ? "♥ Аз дӯстдоштаҳо хориҷ кардан"
+                        : "♡ Ба дӯстдоштаҳо"
+        );
 
-        setContentView(layout);
+        favorite.setAllCaps(false);
+        favorite.setTextColor(WHITE);
+        favorite.setBackground(bg(CARD2, 14));
+
+        content.addView(favorite);
+
+        favorite.setOnClickListener(v -> {
+
+            if (favorites.contains(index)) {
+
+                favorites.remove(index);
+
+                favorite.setText(
+                        "♡ Ба дӯстдоштаҳо"
+                );
+
+            } else {
+
+                favorites.add(index);
+
+                favorite.setText(
+                        "♥ Аз дӯстдоштаҳо хориҷ кардан"
+                );
+            }
+        });
+
+        Button contact = new Button(this);
+        contact.setText("📱 Тамос гирифтан");
+        contact.setAllCaps(false);
+        contact.setTextColor(WHITE);
+        contact.setBackground(bg(GREEN, 14));
+
+        LinearLayout.LayoutParams contactP =
+                new LinearLayout.LayoutParams(-1, dp(52));
+
+        contactP.topMargin = dp(12);
+
+        content.addView(contact, contactP);
+
+        contact.setOnClickListener(v -> {
+
+            Toast.makeText(
+                    this,
+                    "Рақами тамос: " + phone,
+                    Toast.LENGTH_LONG
+            ).show();
+        });
+
+        addBottomNavigation(0);
     }
 
     // =========================================================
-    // ADD ACCOUNT
+    // FAVORITES
     // =========================================================
 
-    void showAddAccount() {
+    void showFavorites() {
 
-        ScrollView scroll = new ScrollView(this);
+        createBase("Избранное");
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(25, 30, 25, 30);
+        TextView title = text(
+                "♥ Дӯстдоштаҳо",
+                25,
+                WHITE,
+                true
+        );
 
-        TextView title = new TextView(this);
-        title.setText("➕ ИЛОВА КАРДАНИ АКАУНТ");
-        title.setTextSize(26);
-        title.setGravity(Gravity.CENTER);
+        content.addView(title);
 
-        EditText name = field("Номи аккаунт");
-        EditText game = field("Бозӣ (Free Fire / PUBG)");
-        EditText level = field("Level");
-        EditText price = field("Нарх бо сомонӣ");
-        EditText phone = field("Телефон / WhatsApp");
+        if (favorites.isEmpty()) {
 
-        EditText description = field("Маълумоти аккаунт");
-        description.setMinLines(4);
+            TextView empty = text(
+                    "\nҲоло аккаунте ба дӯстдоштаҳо илова нашудааст.",
+                    17,
+                    MUTED,
+                    false
+            );
+
+            content.addView(empty);
+
+        } else {
+
+            for (Integer i : favorites) {
+
+                if (i < names.size()) {
+
+                    addCard(
+                            content,
+                            i,
+                            names.get(i),
+                            games.get(i),
+                            levels.get(i),
+                            prices.get(i),
+                            phones.get(i),
+                            descriptions.get(i)
+                    );
+                }
+            }
+        }
+
+        addBottomNavigation(2);
+    }
+
+    // =========================================================
+    // ADD LISTING
+    // =========================================================
+
+    void showAddListing() {
+
+        createBase("Илова кардани эълон");
+
+        TextView title = text(
+                "➕ Илова кардани аккаунт",
+                24,
+                WHITE,
+                true
+        );
+
+        content.addView(title);
+
+        EditText name = input("Номи аккаунт");
+        EditText game = input("Бозӣ");
+        EditText level = input("Level");
+        EditText price = input("Нарх");
+        EditText phone = input("Телефон");
+        EditText desc = input("Тавсифи аккаунт");
+
+        content.addView(name);
+        content.addView(game);
+        content.addView(level);
+        content.addView(price);
+        content.addView(phone);
+        content.addView(desc);
 
         Button publish = new Button(this);
-        publish.setText("✅ НАШР КАРДАН");
 
-        Button back = new Button(this);
-        back.setText("← БАРГАШТАН");
+        publish.setText("✅ Нашр кардани эълон");
+        publish.setTextColor(WHITE);
+        publish.setAllCaps(false);
+        publish.setBackground(bg(GREEN, 15));
+
+        content.addView(publish);
 
         publish.setOnClickListener(v -> {
 
@@ -359,95 +695,240 @@ public class MainActivity extends Activity {
 
                 Toast.makeText(
                         this,
-                        "Ном, бозӣ ва нархро пур кунед",
+                        "Ном, бозӣ ва нархро пур кунед.",
                         Toast.LENGTH_SHORT
                 ).show();
 
                 return;
             }
 
-            saveAccount(
-                    name.getText().toString(),
-                    game.getText().toString(),
-                    level.getText().toString(),
-                    price.getText().toString(),
-                    phone.getText().toString(),
-                    description.getText().toString()
-            );
+            names.add(name.getText().toString());
+            games.add(game.getText().toString());
+            levels.add(level.getText().toString());
+            prices.add(price.getText().toString());
+            phones.add(phone.getText().toString());
+            descriptions.add(desc.getText().toString());
 
             Toast.makeText(
                     this,
-                    "✅ Аккаунт нашр шуд",
+                    "Эълон илова шуд ✅",
                     Toast.LENGTH_SHORT
             ).show();
 
-            showAccounts();
+            showHome();
         });
 
-        back.setOnClickListener(v -> showAdminPanel());
-
-        layout.addView(title);
-        layout.addView(name);
-        layout.addView(game);
-        layout.addView(level);
-        layout.addView(price);
-        layout.addView(phone);
-        layout.addView(description);
-        layout.addView(publish);
-        layout.addView(back);
-
-        scroll.addView(layout);
-
-        setContentView(scroll);
+        addBottomNavigation(3);
     }
 
     // =========================================================
-    // FIELD
+    // PROFILE
     // =========================================================
 
-    EditText field(String hint) {
+    void showProfile() {
 
-        EditText edit = new EditText(this);
+        createBase("Профиль");
 
-        edit.setHint(hint);
-        edit.setTextSize(17);
-        edit.setPadding(15, 15, 15, 15);
+        TextView avatar = text(
+                "👤",
+                55,
+                WHITE,
+                false
+        );
 
-        return edit;
+        avatar.setGravity(Gravity.CENTER);
+
+        content.addView(avatar);
+
+        TextView title = text(
+                "Профили ман",
+                25,
+                WHITE,
+                true
+        );
+
+        title.setGravity(Gravity.CENTER);
+
+        content.addView(title);
+
+        Button myListings = new Button(this);
+        myListings.setText("📦 Эълонҳои ман");
+        myListings.setAllCaps(false);
+        myListings.setTextColor(WHITE);
+        myListings.setBackground(bg(CARD2, 15));
+
+        content.addView(myListings);
+
+        myListings.setOnClickListener(
+                v -> showHome()
+        );
+
+        Button settings = new Button(this);
+        settings.setText("⚙️ Танзимот");
+        settings.setAllCaps(false);
+        settings.setTextColor(WHITE);
+        settings.setBackground(bg(CARD2, 15));
+
+        content.addView(settings);
+
+        settings.setOnClickListener(v ->
+                Toast.makeText(
+                        this,
+                        "Танзимот баъдтар илова мешавад.",
+                        Toast.LENGTH_SHORT
+                ).show()
+        );
+
+        addBottomNavigation(4);
     }
 
     // =========================================================
-    // SAVE ACCOUNT
+    // BOTTOM NAVIGATION
     // =========================================================
 
-    void saveAccount(
-            String name,
-            String game,
-            String level,
-            String price,
-            String phone,
-            String description) {
+    void addBottomNavigation(int selected) {
 
-        int count = prefs.getInt("count", 0);
+        LinearLayout nav = new LinearLayout(this);
+        nav.setOrientation(LinearLayout.HORIZONTAL);
+        nav.setGravity(Gravity.CENTER);
+        nav.setPadding(5, 5, 5, 5);
+        nav.setBackground(bg(Color.rgb(5, 14, 34), 0));
 
-        prefs.edit()
-                .putString("name_" + count, name)
-                .putString("game_" + count, game)
-                .putString("level_" + count, level)
-                .putString("price_" + count, price)
-                .putString("phone_" + count, phone)
-                .putString("description_" + count, description)
-                .putInt("count", count + 1)
-                .apply();
+        String[] labels = {
+                "⌂\nАсосӣ",
+                "⌕\nҶустуҷӯ",
+                "♥\nИзбранное",
+                "＋\nИлова",
+                "●\nПрофиль"
+        };
 
-        loadAccounts();
+        for (int i = 0; i < labels.length; i++) {
+
+            final int position = i;
+
+            Button b = new Button(this);
+
+            b.setText(labels[i]);
+            b.setTextSize(12);
+            b.setAllCaps(false);
+            b.setTextColor(
+                    position == selected
+                            ? Color.rgb(80, 170, 255)
+                            : MUTED
+            );
+
+            b.setBackgroundColor(Color.TRANSPARENT);
+
+            nav.addView(
+                    b,
+                    new LinearLayout.LayoutParams(
+                            0,
+                            dp(65),
+                            1
+                    )
+            );
+
+            b.setOnClickListener(v -> {
+
+                if (position == 0) {
+                    showHome();
+
+                } else if (position == 1) {
+
+                    createSearchPage();
+
+                } else if (position == 2) {
+
+                    showFavorites();
+
+                } else if (position == 3) {
+
+                    showAddListing();
+
+                } else {
+
+                    showProfile();
+                }
+            });
+        }
+
+        main.addView(
+                nav,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(70)
+                )
+        );
     }
 
     // =========================================================
-    // LOAD ACCOUNTS
+    // SEARCH PAGE
     // =========================================================
 
-    void loadAccounts() {
+    void createSearchPage() {
+
+        createBase("Ҷустуҷӯ");
+
+        EditText input = input("🔍 Номи аккаунт ё бозӣ...");
+
+        content.addView(input);
+
+        Button button = new Button(this);
+
+        button.setText("Ҷустуҷӯ");
+        button.setAllCaps(false);
+        button.setTextColor(WHITE);
+        button.setBackground(bg(ACCENT, 14));
+
+        content.addView(button);
+
+        button.setOnClickListener(v ->
+                showSearch(input.getText().toString())
+        );
+
+        addBottomNavigation(1);
+    }
+
+    // =========================================================
+    // INPUT
+    // =========================================================
+
+    EditText input(String hint) {
+
+        EditText e = new EditText(this);
+
+        e.setHint(hint);
+        e.setHintTextColor(MUTED);
+        e.setTextColor(WHITE);
+        e.setTextSize(16);
+        e.setSingleLine(false);
+        e.setPadding(
+                dp(15),
+                dp(10),
+                dp(15),
+                dp(10)
+        );
+
+        e.setBackground(bg(CARD2, 14));
+
+        LinearLayout.LayoutParams p =
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(55)
+                );
+
+        p.topMargin = dp(10);
+
+        e.setLayoutParams(p);
+
+        return e;
+    }
+
+    // =========================================================
+    // DEMO ACCOUNTS
+    // =========================================================
+
+    void loadDemoAccounts() {
 
         names.clear();
         games.clear();
@@ -456,160 +937,71 @@ public class MainActivity extends Activity {
         phones.clear();
         descriptions.clear();
 
-        int count = prefs.getInt("count", 0);
-
-        for (int i = 0; i < count; i++) {
-
-            names.add(
-                    prefs.getString("name_" + i, "")
-            );
-
-            games.add(
-                    prefs.getString("game_" + i, "")
-            );
-
-            levels.add(
-                    prefs.getString("level_" + i, "")
-            );
-
-            prices.add(
-                    prefs.getString("price_" + i, "")
-            );
-
-            phones.add(
-                    prefs.getString("phone_" + i, "")
-            );
-
-            descriptions.add(
-                    prefs.getString("description_" + i, "")
-            );
-        }
-    }
-
-    // =========================================================
-    // ACCOUNTS LIST
-    // =========================================================
-
-    void showAccounts() {
-
-        ScrollView scroll = new ScrollView(this);
-
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(20, 30, 20, 30);
-        list.setBackgroundColor(Color.rgb(245, 245, 245));
-
-        TextView title = new TextView(this);
-        title.setText("🎮 АКАУНТҲО");
-        title.setTextSize(30);
-        title.setTextColor(Color.rgb(0, 128, 96));
-        title.setGravity(Gravity.CENTER);
-
-        list.addView(title);
-
-        if (names.size() == 0) {
-
-            TextView empty = new TextView(this);
-            empty.setText(
-                    "Ҳоло ягон аккаунт илова нашудааст."
-            );
-
-            empty.setTextSize(18);
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(0, 30, 0, 30);
-
-            list.addView(empty);
-
-        } else {
-
-            for (int i = 0; i < names.size(); i++) {
-
-                addAccount(
-                        list,
-                        names.get(i),
-                        games.get(i),
-                        levels.get(i),
-                        prices.get(i),
-                        phones.get(i),
-                        descriptions.get(i)
-                );
-            }
-        }
-
-        Button back = new Button(this);
-        back.setText("← БАРГАШТАН");
-
-        back.setOnClickListener(v -> showHome());
-
-        list.addView(back);
-
-        scroll.addView(list);
-
-        setContentView(scroll);
-    }
-
-    // =========================================================
-    // ACCOUNT CARD
-    // =========================================================
-
-    void addAccount(
-            LinearLayout list,
-            String name,
-            String game,
-            String level,
-            String price,
-            String phone,
-            String description) {
-
-        LinearLayout card = new LinearLayout(this);
-
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(25, 25, 25, 25);
-        card.setBackgroundColor(Color.WHITE);
-
-        TextView nameText = new TextView(this);
-        nameText.setText("🎮 " + name);
-        nameText.setTextSize(22);
-
-        TextView gameText = new TextView(this);
-        gameText.setText("🕹 Бозӣ: " + game);
-        gameText.setTextSize(17);
-
-        TextView levelText = new TextView(this);
-        levelText.setText("📊 Level: " + level);
-        levelText.setTextSize(17);
-
-        TextView descText = new TextView(this);
-        descText.setText("📝 " + description);
-        descText.setTextSize(16);
-
-        TextView priceText = new TextView(this);
-        priceText.setText("💰 " + price + " сомонӣ");
-        priceText.setTextSize(20);
-        priceText.setTextColor(Color.rgb(0, 128, 96));
-
-        TextView phoneText = new TextView(this);
-        phoneText.setText("📱 " + phone);
-        phoneText.setTextSize(17);
-
-        card.addView(nameText);
-        card.addView(gameText);
-        card.addView(levelText);
-        card.addView(descText);
-        card.addView(priceText);
-        card.addView(phoneText);
-
-        list.addView(card);
-
-        Space space = new Space(this);
-
-        list.addView(
-                space,
-                new LinearLayout.LayoutParams(
-                        1,
-                        20
-                )
+        names.add("VEXO FF");
+        games.add("Free Fire");
+        levels.add("Level 70");
+        prices.add("850");
+        phones.add("+992 900 00 00 00");
+        descriptions.add(
+                "Аккаунти пурқувват бо скинҳо ва либосҳои зиёд."
         );
+
+        names.add("TJ PUBG");
+        games.add("PUBG");
+        levels.add("Level 62");
+        prices.add("650");
+        phones.add("+992 900 11 11 11");
+        descriptions.add(
+                "Аккаунти PUBG бо инвентари хуб."
+        );
+    }
+
+    // =========================================================
+    // TEXT
+    // =========================================================
+
+    TextView text(
+            String value,
+            float size,
+            int color,
+            boolean bold
+    ) {
+
+        TextView t = new TextView(this);
+
+        t.setText(value);
+        t.setTextSize(size);
+        t.setTextColor(color);
+        t.setPadding(0, dp(5), 0, dp(5));
+
+        if (bold) {
+            t.setTypeface(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+            );
+        }
+
+        return t;
+    }
+
+    // =========================================================
+    // BACKGROUND
+    // =========================================================
+
+    GradientDrawable bg(
+            int color,
+            int radius
+    ) {
+
+        GradientDrawable g = new GradientDrawable();
+
+        g.setColor(color);
+
+        if (radius > 0) {
+            g.setCornerRadius(dp(radius));
+        }
+
+        return g;
     }
 
     // =========================================================
@@ -618,11 +1010,12 @@ public class MainActivity extends Activity {
 
     int dp(int value) {
 
-        float density =
+        return (int) (
+                value *
                 getResources()
                         .getDisplayMetrics()
-                        .density;
-
-        return (int) (value * density + 0.5f);
+                        .density
+                + 0.5f
+        );
     }
 }
