@@ -2,11 +2,17 @@ package tj.gametj.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.*;
+
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -25,11 +31,163 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Ранги Status Bar
+        getWindow().setStatusBarColor(Color.BLACK);
+        getWindow().setNavigationBarColor(Color.BLACK);
+
         prefs = getSharedPreferences("GAME_TJ_DATA", MODE_PRIVATE);
 
         loadAccounts();
-        showHome();
+
+        // Аввал Loading Screen
+        showLoading();
     }
+
+    // =========================================================
+    // LOADING SCREEN
+    // =========================================================
+
+    void showLoading() {
+
+        LinearLayout loadingLayout = new LinearLayout(this);
+        loadingLayout.setOrientation(LinearLayout.VERTICAL);
+        loadingLayout.setGravity(Gravity.CENTER);
+        loadingLayout.setBackgroundColor(Color.BLACK);
+
+        // Логотип
+        ImageView logo = new ImageView(this);
+
+        try {
+            logo.setImageResource(R.mipmap.ic_launcher);
+        } catch (Exception e) {
+            logo.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+
+        int logoSize = dp(180);
+
+        LinearLayout.LayoutParams logoParams =
+                new LinearLayout.LayoutParams(logoSize, logoSize);
+
+        logoParams.gravity = Gravity.CENTER;
+        logo.setLayoutParams(logoParams);
+        logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+        // =====================================================
+        // АНИМАТСИЯИ ЛОГО
+        // Равшан мешавад -> хомӯштар -> боз равшан
+        // Ҳамзамон каме калон/хурд мешавад
+        // =====================================================
+
+        AlphaAnimation fade =
+                new AlphaAnimation(0.45f, 1.0f);
+
+        fade.setDuration(850);
+        fade.setRepeatMode(Animation.REVERSE);
+        fade.setRepeatCount(Animation.INFINITE);
+
+        ScaleAnimation scale =
+                new ScaleAnimation(
+                        0.92f,
+                        1.05f,
+                        0.92f,
+                        1.05f,
+                        Animation.RELATIVE_TO_SELF,
+                        0.5f,
+                        Animation.RELATIVE_TO_SELF,
+                        0.5f
+                );
+
+        scale.setDuration(850);
+        scale.setRepeatMode(Animation.REVERSE);
+        scale.setRepeatCount(Animation.INFINITE);
+
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.addAnimation(fade);
+        animationSet.addAnimation(scale);
+
+        logo.startAnimation(animationSet);
+
+        // Номи барнома
+        TextView title = new TextView(this);
+        title.setText("GAME TJ");
+        title.setTextSize(30);
+        title.setTextColor(Color.WHITE);
+        title.setGravity(Gravity.CENTER);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+
+        LinearLayout.LayoutParams titleParams =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+        titleParams.topMargin = dp(18);
+        title.setLayoutParams(titleParams);
+
+        // Матни Loading
+        TextView loadingText = new TextView(this);
+        loadingText.setText("Бор карда мешавад...");
+        loadingText.setTextSize(16);
+        loadingText.setTextColor(Color.LTGRAY);
+        loadingText.setGravity(Gravity.CENTER);
+
+        LinearLayout.LayoutParams textParams =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+        textParams.topMargin = dp(8);
+        loadingText.setLayoutParams(textParams);
+
+        // Нуқтаҳои loading
+        TextView dots = new TextView(this);
+        dots.setText("●  ●  ●");
+        dots.setTextSize(14);
+        dots.setTextColor(Color.WHITE);
+        dots.setGravity(Gravity.CENTER);
+
+        LinearLayout.LayoutParams dotsParams =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+        dotsParams.topMargin = dp(15);
+        dots.setLayoutParams(dotsParams);
+
+        AlphaAnimation dotsAnimation =
+                new AlphaAnimation(0.25f, 1.0f);
+
+        dotsAnimation.setDuration(700);
+        dotsAnimation.setRepeatMode(Animation.REVERSE);
+        dotsAnimation.setRepeatCount(Animation.INFINITE);
+
+        dots.startAnimation(dotsAnimation);
+
+        loadingLayout.addView(logo);
+        loadingLayout.addView(title);
+        loadingLayout.addView(loadingText);
+        loadingLayout.addView(dots);
+
+        setContentView(loadingLayout);
+
+        // Баъд аз Loading ба Home мегузарад
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                logo.clearAnimation();
+                dots.clearAnimation();
+
+                showHome();
+            }
+        }, 3000);
+    }
+
+    // =========================================================
+    // HOME
+    // =========================================================
 
     void showHome() {
 
@@ -46,7 +204,7 @@ public class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
 
         TextView welcome = new TextView(this);
-        welcome.setText("Хуш омадед ба бозори акаунтҳо");
+        welcome.setText("Хуш омадед ба бозори аккаунтҳо");
         welcome.setTextSize(23);
         welcome.setTextColor(Color.WHITE);
         welcome.setGravity(Gravity.CENTER);
@@ -69,6 +227,10 @@ public class MainActivity extends Activity {
 
         setContentView(root);
     }
+
+    // =========================================================
+    // ADMIN LOGIN
+    // =========================================================
 
     void showAdminLogin() {
 
@@ -95,11 +257,16 @@ public class MainActivity extends Activity {
         login.setOnClickListener(v -> {
 
             if (password.getText().toString().equals("1234")) {
+
                 showAdminPanel();
+
             } else {
-                Toast.makeText(this,
+
+                Toast.makeText(
+                        this,
                         "PIN-код нодуруст аст",
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
 
@@ -112,6 +279,10 @@ public class MainActivity extends Activity {
 
         setContentView(layout);
     }
+
+    // =========================================================
+    // ADMIN PANEL
+    // =========================================================
 
     void showAdminPanel() {
 
@@ -135,7 +306,9 @@ public class MainActivity extends Activity {
         back.setText("← БАРГАШТАН");
 
         add.setOnClickListener(v -> showAddAccount());
+
         accounts.setOnClickListener(v -> showAccounts());
+
         back.setOnClickListener(v -> showHome());
 
         layout.addView(title);
@@ -145,6 +318,10 @@ public class MainActivity extends Activity {
 
         setContentView(layout);
     }
+
+    // =========================================================
+    // ADD ACCOUNT
+    // =========================================================
 
     void showAddAccount() {
 
@@ -180,9 +357,11 @@ public class MainActivity extends Activity {
                     || game.getText().toString().trim().isEmpty()
                     || price.getText().toString().trim().isEmpty()) {
 
-                Toast.makeText(this,
+                Toast.makeText(
+                        this,
                         "Ном, бозӣ ва нархро пур кунед",
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT
+                ).show();
 
                 return;
             }
@@ -196,9 +375,11 @@ public class MainActivity extends Activity {
                     description.getText().toString()
             );
 
-            Toast.makeText(this,
+            Toast.makeText(
+                    this,
                     "✅ Аккаунт нашр шуд",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT
+            ).show();
 
             showAccounts();
         });
@@ -220,9 +401,14 @@ public class MainActivity extends Activity {
         setContentView(scroll);
     }
 
+    // =========================================================
+    // FIELD
+    // =========================================================
+
     EditText field(String hint) {
 
         EditText edit = new EditText(this);
+
         edit.setHint(hint);
         edit.setTextSize(17);
         edit.setPadding(15, 15, 15, 15);
@@ -230,12 +416,17 @@ public class MainActivity extends Activity {
         return edit;
     }
 
-    void saveAccount(String name,
-                     String game,
-                     String level,
-                     String price,
-                     String phone,
-                     String description) {
+    // =========================================================
+    // SAVE ACCOUNT
+    // =========================================================
+
+    void saveAccount(
+            String name,
+            String game,
+            String level,
+            String price,
+            String phone,
+            String description) {
 
         int count = prefs.getInt("count", 0);
 
@@ -252,6 +443,10 @@ public class MainActivity extends Activity {
         loadAccounts();
     }
 
+    // =========================================================
+    // LOAD ACCOUNTS
+    // =========================================================
+
     void loadAccounts() {
 
         names.clear();
@@ -265,14 +460,35 @@ public class MainActivity extends Activity {
 
         for (int i = 0; i < count; i++) {
 
-            names.add(prefs.getString("name_" + i, ""));
-            games.add(prefs.getString("game_" + i, ""));
-            levels.add(prefs.getString("level_" + i, ""));
-            prices.add(prefs.getString("price_" + i, ""));
-            phones.add(prefs.getString("phone_" + i, ""));
-            descriptions.add(prefs.getString("description_" + i, ""));
+            names.add(
+                    prefs.getString("name_" + i, "")
+            );
+
+            games.add(
+                    prefs.getString("game_" + i, "")
+            );
+
+            levels.add(
+                    prefs.getString("level_" + i, "")
+            );
+
+            prices.add(
+                    prefs.getString("price_" + i, "")
+            );
+
+            phones.add(
+                    prefs.getString("phone_" + i, "")
+            );
+
+            descriptions.add(
+                    prefs.getString("description_" + i, "")
+            );
         }
     }
+
+    // =========================================================
+    // ACCOUNTS LIST
+    // =========================================================
 
     void showAccounts() {
 
@@ -294,7 +510,10 @@ public class MainActivity extends Activity {
         if (names.size() == 0) {
 
             TextView empty = new TextView(this);
-            empty.setText("Ҳоло ягон аккаунт илова нашудааст.");
+            empty.setText(
+                    "Ҳоло ягон аккаунт илова нашудааст."
+            );
+
             empty.setTextSize(18);
             empty.setGravity(Gravity.CENTER);
             empty.setPadding(0, 30, 0, 30);
@@ -319,23 +538,31 @@ public class MainActivity extends Activity {
 
         Button back = new Button(this);
         back.setText("← БАРГАШТАН");
+
         back.setOnClickListener(v -> showHome());
 
         list.addView(back);
 
         scroll.addView(list);
+
         setContentView(scroll);
     }
 
-    void addAccount(LinearLayout list,
-                    String name,
-                    String game,
-                    String level,
-                    String price,
-                    String phone,
-                    String description) {
+    // =========================================================
+    // ACCOUNT CARD
+    // =========================================================
+
+    void addAccount(
+            LinearLayout list,
+            String name,
+            String game,
+            String level,
+            String price,
+            String phone,
+            String description) {
 
         LinearLayout card = new LinearLayout(this);
+
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(25, 25, 25, 25);
         card.setBackgroundColor(Color.WHITE);
@@ -375,7 +602,27 @@ public class MainActivity extends Activity {
         list.addView(card);
 
         Space space = new Space(this);
-        list.addView(space,
-                new LinearLayout.LayoutParams(1, 20));
+
+        list.addView(
+                space,
+                new LinearLayout.LayoutParams(
+                        1,
+                        20
+                )
+        );
+    }
+
+    // =========================================================
+    // DP
+    // =========================================================
+
+    int dp(int value) {
+
+        float density =
+                getResources()
+                        .getDisplayMetrics()
+                        .density;
+
+        return (int) (value * density + 0.5f);
     }
 }
