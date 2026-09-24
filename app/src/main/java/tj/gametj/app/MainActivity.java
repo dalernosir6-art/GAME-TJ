@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.Shader;
 import android.net.ConnectivityManager;
 import android.net.Network;
